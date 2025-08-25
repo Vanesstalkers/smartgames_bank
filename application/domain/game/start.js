@@ -37,9 +37,9 @@ async () => {
           lib.store.broadcaster.publishAction(channelName, 'gameServerConnected', {
             code: 'bank',
             title: 'Банкинг',
-            icon: ['fas', 'university'],
+            icon: ['fas', 'money-bill'],
             active: true,
-            url: process.env.NODE_ENV === 'development' ? 'http://localhost:8860' : url,
+            url: process.env.NODE_ENV === 'development' ? 'http://localhost:8084' : url,
             serverUrl:
               process.env.NODE_ENV === 'development' ? `http://localhost:${config.server.balancer}` : `${url}/api`,
             games,
