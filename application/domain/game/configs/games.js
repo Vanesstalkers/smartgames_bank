@@ -70,7 +70,7 @@
     },
   },
   poker: {
-    ...{ title: 'TO_CHANGE', icon: ['fas', 'fa-coins'] },
+    ...{ title: 'Бизнес-покер', icon: ['fas', 'fa-coins'] },
     items: {
       default: {
         title: 'Стандарт',
@@ -105,11 +105,11 @@
         { type: 'card', subtype: 'car', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'service', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'client', placement: 'main', hasDrop: true },
-        { type: 'card', subtype: 'credit', placement: 'main', hasDrop: true },
+        // { type: 'card', subtype: 'credit', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'feature', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'zone_client', placement: 'table' },
         { type: 'card', subtype: 'zone_feature', placement: 'table' },
-        { type: 'card', subtype: 'zone_credit', placement: 'table' },
+        // { type: 'card', subtype: 'zone_credit', placement: 'table' },
       ],
     },
   },

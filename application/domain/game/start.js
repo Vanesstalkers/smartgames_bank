@@ -33,13 +33,13 @@ async () => {
             }
           }
 
-          const url = 'https://smartgames.studio/TO_CHANGE';
+          const url = 'https://smartgames.studio/bank';
           lib.store.broadcaster.publishAction(channelName, 'gameServerConnected', {
-            code: 'TO_CHANGE',
-            title: 'TO_CHANGE',
-            icon: ['fas', 'microchip'],
+            code: 'bank',
+            title: 'Банкинг',
+            icon: ['fas', 'university'],
             active: true,
-            url: process.env.NODE_ENV === 'development' ? 'http://localhost:TO_CHANGE' : url,
+            url: process.env.NODE_ENV === 'development' ? 'http://localhost:8860' : url,
             serverUrl:
               process.env.NODE_ENV === 'development' ? `http://localhost:${config.server.balancer}` : `${url}/api`,
             games,

@@ -1,5 +1,5 @@
 () =>
-  class TO_CHANGE extends lib.game.userClass() {
+  class BankGameUser extends lib.game.userClass() {
     async gameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount }) {
       const {
         helper: { getTutorial },
@@ -32,7 +32,7 @@
       let income = 0;
       let penaltySum = 0;
       if (endGameStatus === 'win') {
-        penaltySum = 0; // TO_CHANGE
+        penaltySum = 0;
         income = fullPrice * 100 - penaltySum;
         rankings[gameType].money = money + income;
         if (income < 0) income = 0; // в рейтинги отрицательный результата пишем

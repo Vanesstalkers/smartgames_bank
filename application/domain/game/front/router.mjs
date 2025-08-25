@@ -1,14 +1,14 @@
 export default [
   {
-    path: '/game/TO_CHANGE/poker/:id',
-    name: 'TO_CHANGE Poker Game',
+    path: '/game/bank/poker/:id',
+    name: 'Bank Poker Game',
     component: function () {
       return import('./pokerGame.vue');
     },
   },
   {
-  	path: '/game/TO_CHANGE/:id',
-  	name: 'TO_CHANGE Game',
+    path: '/game/bank/:id',
+    name: 'Bank Game',
     component: function () {
       return import('./Game.vue');
     },
