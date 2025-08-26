@@ -22,19 +22,4 @@
   stepLabel(label) {
     return `Раунд ${this.round} (${label})`;
   }
-
-  removeTableCards() {
-    const tableDecks = this.select({ className: 'Deck', attr: { placement: 'table' } });
-    for (const deck of tableDecks) {
-      deck.moveAllItems({ toDrop: true, setData: { visible: false } });
-    }
-  }
-
-  restorePlayersHands() {
-    const { roundStepWinner } = this.rounds[this.round];
-    for (const player of this.players()) {
-      if (player === roundStepWinner) continue; // карты победителя сбрасываются
-      player.returnTableCardsToHand();
-    }
-  }
 });

@@ -26,8 +26,102 @@
         color: #ccc;
       }
     }
+
+    &[code='Deck[card_client]'],
+    &[code='Deck[card_client_drop]'] {
+      .card-event {
+        background-image: url(../assets/client-back-side.png);
+      }
+    }
+
+    &[code='Deck[card_feature]'],
+    &[code='Deck[card_feature_drop]'] {
+      .card-event {
+        background-image: url(../assets/feature-back-side.png);
+      }
+    }
+
+    &[code='Deck[card_scoring]'],
+    &[code='Deck[card_scoring_drop]'] {
+      .card-event {
+        background-image: url(../assets/scoring-back-side.png);
+      }
+    }
+
+    &[code='Deck[card_product]'],
+    &[code='Deck[card_product_drop]'] {
+      .card-event {
+        background-image: url(../assets/product-back-side.png);
+      }
+    }
+
+    &[code='Deck[card_service]'],
+    &[code='Deck[card_service_drop]'] {
+      .card-event {
+        background-image: url(../assets/service-back-side.png);
+      }
+    }
   }
 }
+
+#game[type='sales'] {
+  #gameInfo {
+    .deck {
+      &[code='Deck[card_service]'],
+      &[code='Deck[card_service_drop]'] {
+        right: 140px;
+      }
+      &[code='Deck[card_product]'],
+      &[code='Deck[card_product_drop]'] {
+        right: 70px;
+      }
+      &[code='Deck[card_client]'],
+      &[code='Deck[card_client_drop]'] {
+        right: 0px;
+      }
+    }
+  }
+}
+#game[type='poker'] {
+  #gameInfo {
+    .deck {
+      &[code='Deck[card_product]'],
+      &[code='Deck[card_product_drop]'] {
+        right: 280px;
+      }
+      &[code='Deck[card_service]'],
+      &[code='Deck[card_service_drop]'] {
+        right: 210px;
+      }
+      &[code='Deck[card_client]'],
+      &[code='Deck[card_client_drop]'] {
+        right: 140px;
+      }
+      &[code='Deck[card_scoring]'],
+      &[code='Deck[card_scoring_drop]'] {
+        right: 70px;
+      }
+      &[code='Deck[card_feature]'],
+      &[code='Deck[card_feature_drop]'] {
+        right: 0px;
+      }
+    }
+  }
+}
+
+.card-worker {
+  .card-event {
+    &.product-deck {
+      left: 0px;
+      background-image: url(../assets/product-back-side.png);
+    }
+    &.service-deck {
+      right: 0px;
+      background-image: url(../assets/service-back-side.png);
+    }
+  }
+}
+
 .card-event {
   border-radius: 10px;
 }

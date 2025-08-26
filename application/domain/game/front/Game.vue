@@ -2,9 +2,12 @@
   <game :defaultScaleMinVisibleWidth="1000" :planeScaleMin="1" :planeScaleMax="5">
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}" />
 
-    <template #gameplane="{
-      /* game = {}, gamePlaneScale */
-    } = {}">
+    <template
+      #gameplane="{
+        /* game = {}, gamePlaneScale */
+      } = {}"
+    >
+      <sales-game-plane v-if="game.gameType === 'sales'" />
     </template>
 
     <template #gameinfo="{ } = {}">
@@ -49,6 +52,8 @@
 <script>
 import { provide, reactive } from 'vue';
 
+import SalesGamePlane from './sales/plane.vue';
+
 import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
 import card from '~/lib/game/front/components/card.vue';
@@ -57,6 +62,7 @@ import tutorial from '~/lib/helper/front/helper.vue';
 
 export default {
   components: {
+    SalesGamePlane,
     Game,
     player,
     card,
@@ -120,7 +126,13 @@ export default {
       return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
-      return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
+      const decks = Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
+      return decks.filter(({ code }) =>
+        [
+          'Deck[card_client]',
+          'Deck[card_product]',
+        ].includes(code)
+      );
     },
   },
   methods: {},

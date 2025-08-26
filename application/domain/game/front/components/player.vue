@@ -37,8 +37,8 @@
               <div class="money">{{ new Intl.NumberFormat().format((money || 0) * 1000) + '₽' }}</div>
             </template>
             <template #custom>
-              <div v-if="!iam" class="car-deck card-event">
-                {{ carDeckCount }}
+              <div v-if="!iam" class="product-deck card-event">
+                {{ productDeckCount }}
               </div>
               <div v-if="!iam" class="service-deck card-event">
                 {{ serviceDeckCount }}
@@ -152,6 +152,14 @@ export default {
     },
     playerDecks() {
       return Object.keys(this.player.deckMap || {}).map((id) => this.store.deck?.[id] || {});
+    },
+    productDeckCount() {
+      const deck = this.playerDecks.find(({ subtype }) => subtype === 'product');
+      return Object.keys(deck?.itemMap || {}).length || 0;
+    },
+    serviceDeckCount() {
+      const deck = this.playerDecks.find(({ subtype }) => subtype === 'service');
+      return Object.keys(deck?.itemMap || {}).length || 0;
     },
   },
   methods: {
