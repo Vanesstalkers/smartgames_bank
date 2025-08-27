@@ -8,6 +8,7 @@
       winMoneySum,
       playerHand: {
         product: { limit: productLimitInHand },
+        service: { limit: serviceLimitInHand },
       },
     },
   } = this;
@@ -24,26 +25,46 @@
       const serviceCard = decks.service.getRandomItem();
       if (serviceCard) serviceCard.moveToTarget(player.decks.service);
 
-      const tooManyCardsInHand = player.decks.product.itemsCount() > productLimitInHand;
+      const tooManyCardsInHand =
+        player.decks.product.itemsCount() > productLimitInHand ||
+        player.decks.service.itemsCount() > serviceLimitInHand;
       if (tooManyCardsInHand) dropCardsPlayers.push(player);
     }
     return { dropCardsPlayers };
   };
 
-  const prepareSecondOfferStep = () => {
-    const { roundStepWinner: player } = round;
+  const prepareCrossSalesStep = () => {
+    const { roundStepWinner: player, clientCard, featureCard } = round;
+    const priceGroup = [...clientCard.priceGroup];
+    if (featureCard.priceGroup) priceGroup.push(...featureCard.priceGroup);
 
-    player.notifyUser(
-      'Добавь в сделку нужное количество сервисов. При превышении бюджета клиента сделка будет отменена.' // TODO
-    );
+    round.crossSalesCard = player.decks.service.items().find((c) => c.crossSales);
+    if (!round.crossSalesCard) {
+      result.statusLabel = this.stepLabel('Результаты раунда');
+      result.roundStep = 'SHOW_RESULTS';
+      return { ...result, forcedEndRound: true };
+    }
+
+    round.crossSalesCard.moveToTarget(player.decks.played);
+    round.crossSalesCard.set({ visible: true, eventData: { playDisabled: true } });
+
+    player.notifyUser('Если хочешь, то можешь добавить в сделку еще один продукт.');
     player.activate({ setData: { eventData: { controlBtn: { label: 'Завершить сделку' } } } });
+
+    for (const card of player.decks.product.items()) {
+      const playDisabled = card.priceGroup.find((group) => priceGroup.includes(group)) ? null : true;
+      card.set({ eventData: { playDisabled, buttonText: 'Выбрать' } });
+    }
+    for (const card of player.decks.service.items()) {
+      card.set({ eventData: { playDisabled: true } });
+    }
 
     result.newRoundLogEvents.push(`Начались кросс-продажи клиенту.`);
     result.statusLabel = this.stepLabel('Кросс-продажи');
-    result.roundStep = 'SECOND_OFFER';
+    result.roundStep = 'CROSS_SALES';
 
     if (player.ai) return { ...result, forcedEndRound: true };
-    return { ...result, timerRestart: timer.SECOND_OFFER };
+    return { ...result, timerRestart: timer.CROSS_SALES };
   };
 
   const showTableCards = () => {
@@ -142,12 +163,11 @@
         };
       }
 
-      // TODO
-      /* const { bestOffer, offersCount } = this.selectBestOffer(offersMap);
+      const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap });
       const { player, productCard } = bestOffer;
 
       if (!player) {
-        if (offersCount > 0) {
+        if (relevantOffers.length > 0) {
           result.newRoundLogEvents.push(`Клиента не устроило ни одно из предложений.`);
           result.statusLabel = this.stepLabel('Результаты раунда');
           result.roundStep = 'SHOW_RESULTS';
@@ -155,37 +175,109 @@
           result.roundStep = 'CARD_DROP';
         }
         return { ...result, forcedEndRound: true };
-      } */
+      }
 
-      const player = players.find((p) => !p.ai);
-      const productCard = player.decks.played.items().find((c) => c.subtype === 'product');
+      // у всех карт, выложенных на стол, убираем возможность возврата карты в руку делать через блокировку deck нельзя, потому что позже в нее будут добавляться дополнительные карты
+      for (const deck of player.select({ className: 'Deck', attr: { placement: 'table' } })) {
+        for (const card of deck.items()) {
+          card.set({ eventData: { playDisabled: true } });
+        }
+      }
+
+      for (const { player } of relevantOffers) {
+        player.activate({
+          notifyUser: `Сделай второе предложение клиенту.`,
+          setData: {
+            eventData: { playDisabled: null, controlBtn: { label: 'Сделать предложение' } },
+          },
+        });
+
+        if (player.ai) {
+          const cards = [];
+          switch (this.difficulty) {
+            case 'weak':
+              const card = player.decks.service.getRandomItem();
+              if (card) cards.push(card);
+              break;
+            case 'strong':
+              const offers = Object.values(player.getAvailableOffers({ clientCard: round.clientCard })); // TODO
+              const offer = offers[Math.floor(Math.random() * offers.length)];
+              if (offer) {
+                cards.push(offer.productCard);
+                cards.push(...offer.serviceCards);
+              }
+              break;
+          }
+          player.aiActions.push(...cards.map((c) => ({ action: 'playCard', data: { cardId: c.id() } })));
+        }
+      }
+
+      result.statusLabel = `Раунд ${result.newRoundNumber} (Второе предложение)`;
+      result.roundStep = 'SECOND_OFFER';
+
+      const notAIPlayers = this.getActivePlayers().filter((p) => !p.ai);
+      if (notAIPlayers.length === 0) result.forcedEndRound = true;
+
+      return result;
+    }
+
+    case 'SECOND_OFFER': {
+      showTableCards();
+
+      const offersMap = {};
+      for (const player of players) {
+        const productCard = player.decks.played.items().find((c) => c.subtype === 'product');
+        if (!productCard) continue;
+
+        offersMap[productCard.id()] = {
+          player,
+          productCard,
+          serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
+        };
+      }
+
+      const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap });
+      const { player, productCard } = bestOffer;
+
+      if (!player) {
+        if (relevantOffers.length > 0) {
+          result.newRoundLogEvents.push(`Клиента не устроило ни одно из предложений.`);
+          result.statusLabel = this.stepLabel('Результаты раунда');
+          result.roundStep = 'SHOW_RESULTS';
+        } else {
+          result.roundStep = 'CARD_DROP';
+        }
+        return { ...result, forcedEndRound: true };
+      }
 
       round.roundStepWinner = player;
+      round.bestOffer = bestOffer;
       result.newRoundLogEvents.push(`Клиента заинтересовал продукт "${productCard.title}".`);
 
       // у всех карт, выложенных на стол, убираем возможность возврата карты в руку делать через блокировку deck нельзя, потому что позже в нее будут добавляться дополнительные карты
       for (const deck of player.select({ className: 'Deck', attr: { placement: 'table' } })) {
-        for (const card of deck.select('Card')) {
+        for (const card of deck.items()) {
           card.set({ eventData: { playDisabled: true } });
         }
       }
 
       round.featureCard.play({ player });
 
-      if (player.findEvent({ present: true })) {
-        result.statusLabel = this.stepLabel('Подарок клиенту');
-        result.roundStep = 'PRESENT';
-        result.newRoundLogEvents.push(`Происходит выбор подарка клиенту.`);
-        player.activate();
+      // TODO
+      // if (player.findEvent({ present: true })) {
+      //   result.statusLabel = this.stepLabel('Подарок клиенту');
+      //   result.roundStep = 'PRESENT';
+      //   result.newRoundLogEvents.push(`Происходит выбор подарка клиенту.`);
+      //   player.activate();
 
-        if (player.ai) {
-          player.decks.service.set({ eventData: { playDisabled: null } });
-          return { ...result, forcedEndRound: true };
-        }
-        return { ...result, timerRestart: timer.PRESENT };
-      }
+      //   if (player.ai) {
+      //     player.decks.service.set({ eventData: { playDisabled: null } });
+      //     return { ...result, forcedEndRound: true };
+      //   }
+      //   return { ...result, timerRestart: timer.PRESENT };
+      // }
 
-      return prepareSecondOfferStep();
+      return prepareCrossSalesStep();
     }
 
     case 'PRESENT': {
@@ -198,10 +290,10 @@
       result.newRoundLogEvents.push(`Начались продажи дополнительных сервисов клиенту.`); // TODO
       result.statusLabel = this.stepLabel('Дополнительные продажи');
       result.roundStep = 'SECOND_OFFER';
-      return prepareSecondOfferStep();
+      return prepareCrossSalesStep();
     }
 
-    case 'SECOND_OFFER': {
+    case 'CROSS_SALES': {
       const { featureCard, roundStepWinner: player } = round;
 
       // TODO
@@ -226,6 +318,10 @@
         result.newRoundLogEvents.push(`Клиент отказался от сделки из-за превышения допустимой стоимости сервисов.`); // TODO
         delete round.roundStepWinner;
       } */
+
+      for (const card of player.decks.service.items()) {
+        card.set({ eventData: { playDisabled: null } });
+      }
 
       result.statusLabel = this.stepLabel('Результаты раунда');
       result.roundStep = 'SHOW_RESULTS';
@@ -299,6 +395,8 @@
     case 'ROUND_END': {
       removeTableCards();
       round.roundStepWinner = null;
+      round.bestOffer = null;
+      if (round.crossSalesCard) round.crossSalesCard = null;
 
       result.roundStep = 'ROUND_START';
       return { ...result, forcedEndRound: true };

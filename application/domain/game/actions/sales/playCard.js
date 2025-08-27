@@ -9,4 +9,20 @@
       card.set({ visible: true });
     }
   }
+  if (this.roundStep === 'CROSS_SALES') {
+    const round = this.rounds[this.round];
+    card.set({ visible: true });
+
+
+    // for (const card of player.decks.product.items()) {
+    //   card.set({
+    //     eventData: {
+    //       playDisabled: null,
+    //       activeEvents: [this],
+    //       cardClass: 'alert',
+    //       buttonText: 'Сбросить карту',
+    //     },
+    //   });
+    // }
+  }
 });
