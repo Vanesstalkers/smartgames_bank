@@ -109,6 +109,9 @@ export default {
     store() {
       return this.getStore();
     },
+    game() {
+      return this.getGame();
+    },
     player() {
       return this.store.player?.[this.playerId] || {};
     },
@@ -167,8 +170,24 @@ export default {
       const playerAvailable =
         (this.sessionPlayerIsActive() || this.player.eventData.canPlay) && !this.player.eventData.playDisabled;
       const deckAvailable = !card.deck.eventData.playDisabled;
+      let customCheck = true;
 
-      return this.iam && playerAvailable && deckAvailable;
+      if (this.game.roundStep === 'FIRST_OFFER') {
+        const tableProduct = this.tableCards.find((card) => card.group === 'product');
+        const onlyOneProduct = card.group !== 'product' || !tableProduct;
+        customCheck = onlyOneProduct || card.deck.placement === 'table';
+      }
+      if (this.game.roundStep === 'SECOND_OFFER') {
+        const tableProducts = this.tableCards.filter((card) => card.group === 'product');
+        const tableProduct = tableProducts.find((card) => this.store.card?.[card.id]?.eventData?.playDisabled) || {};
+        const tableProductStars = this.store.card?.[tableProduct.id]?.stars || 0;
+        const onlyOneProduct =
+          card.group !== 'product' || ((!tableProduct || tableProductStars === 0) && tableProducts.length < 2);
+        console.log('tableProducts=', tableProducts);
+        customCheck = onlyOneProduct || card.deck.placement === 'table';
+      }
+
+      return this.iam && playerAvailable && deckAvailable && customCheck;
     },
     tutorialAction() {
       this.helperChecked = true;

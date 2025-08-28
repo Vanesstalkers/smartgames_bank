@@ -52,8 +52,7 @@
     player.activate({ setData: { eventData: { controlBtn: { label: 'Завершить сделку' } } } });
 
     for (const card of player.decks.product.items()) {
-      const playDisabled = card.priceGroup.find((group) => priceGroup.includes(group)) ? null : true;
-      card.set({ eventData: { playDisabled, buttonText: 'Выбрать' } });
+      card.set({ eventData: { playDisabled: null, buttonText: 'Выбрать' } });
     }
     for (const card of player.decks.service.items()) {
       card.set({ eventData: { playDisabled: true } });
@@ -96,6 +95,21 @@
     for (const deck of tableDecks) {
       deck.moveAllItems({ toDrop: true, setData: { visible: false } });
     }
+  };
+
+  const getOffersMap = () => {
+    const offersMap = {};
+    for (const player of players) {
+      const productCards = player.decks.played.items().filter((c) => c.subtype === 'product');
+      if (!productCards.length) continue;
+
+      offersMap[productCards[0].id()] = {
+        player,
+        productCards,
+        serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
+      };
+    }
+    return offersMap;
   };
 
   switch (this.roundStep) {
@@ -151,20 +165,8 @@
     case 'FIRST_OFFER': {
       showTableCards();
 
-      const offersMap = {};
-      for (const player of players) {
-        const productCard = player.decks.played.items().find((c) => c.subtype === 'product');
-        if (!productCard) continue;
-
-        offersMap[productCard.id()] = {
-          player,
-          productCard,
-          serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
-        };
-      }
-
-      const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap });
-      const { player, productCard } = bestOffer;
+      const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
+      const { player, productCards } = bestOffer;
 
       if (!player) {
         if (relevantOffers.length > 0) {
@@ -224,20 +226,8 @@
     case 'SECOND_OFFER': {
       showTableCards();
 
-      const offersMap = {};
-      for (const player of players) {
-        const productCard = player.decks.played.items().find((c) => c.subtype === 'product');
-        if (!productCard) continue;
-
-        offersMap[productCard.id()] = {
-          player,
-          productCard,
-          serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
-        };
-      }
-
-      const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap });
-      const { player, productCard } = bestOffer;
+      const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
+      const { player, productCards } = bestOffer;
 
       if (!player) {
         if (relevantOffers.length > 0) {
@@ -252,7 +242,11 @@
 
       round.roundStepWinner = player;
       round.bestOffer = bestOffer;
-      result.newRoundLogEvents.push(`Клиента заинтересовал продукт "${productCard.title}".`);
+      result.newRoundLogEvents.push(
+        productCards.length > 1
+          ? `Клиента заинтересовали продукты: ${productCards.map((c) => `"${c.title}"`).join(', ')}.`
+          : `Клиента заинтересовал продукт "${productCards[0].title}".`
+      );
 
       // у всех карт, выложенных на стол, убираем возможность возврата карты в руку делать через блокировку deck нельзя, потому что позже в нее будут добавляться дополнительные карты
       for (const deck of player.select({ className: 'Deck', attr: { placement: 'table' } })) {
@@ -294,31 +288,11 @@
     }
 
     case 'CROSS_SALES': {
-      const { featureCard, roundStepWinner: player } = round;
+      const { roundStepWinner: player } = round;
 
-      // TODO
-      /*       const { fullPrice, productTitle } = this.calcOffer({
-        player,
-        productCard: player.decks.played.items().find((c) => c.subtype === 'product'),
-        serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
-        featureCard,
-      });
-
-      if (fullPrice <= round.clientMoney) {
-        // TODO
-        result.newRoundLogEvents.push(
-          `Клиент приобрел продут "${productTitle}" за ${new Intl.NumberFormat().format((fullPrice || 0) * 1000)}₽.`
-        );
-
-        const money = player.money + fullPrice;
-        player.set({ money });
-
-        if (money >= winMoneySum) return this.run('endGame', { winningPlayer: player });
-      } else {
-        result.newRoundLogEvents.push(`Клиент отказался от сделки из-за превышения допустимой стоимости сервисов.`); // TODO
-        delete round.roundStepWinner;
-      } */
-
+      for (const card of player.decks.product.items()) {
+        card.set({ eventData: { playDisabled: null } });
+      }
       for (const card of player.decks.service.items()) {
         card.set({ eventData: { playDisabled: null } });
       }
@@ -329,6 +303,24 @@
     }
 
     case 'SHOW_RESULTS': {
+      if (round.roundStepWinner) {
+        const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
+        const { player, productCards, price } = bestOffer;
+
+        result.newRoundLogEvents.push(
+          productCards.length > 1
+            ? `Клиент приобрел продукты: ${productCards
+                .map((c) => `"${c.title}"`)
+                .join(', ')} за ${new Intl.NumberFormat().format(price * 1000)}₽.`
+            : `Клиент приобрел продукт "${productCards[0].title}" за ${new Intl.NumberFormat().format(price * 1000)}₽.`
+        );
+
+        const money = player.money + price;
+        player.set({ money });
+
+        if (money >= winMoneySum) return this.run('endGame', { winningPlayer: player });
+      }
+
       this.activatePlayers({
         setData: { eventData: { playDisabled: true, controlBtn: { label: 'Завершить раунд' } } },
         disableSkipTurnCheck: true,

@@ -24,6 +24,7 @@
           CARD_DROP: Math.max(5, Math.ceil(baseTimer / 5)),
         };
       },
+      centralBankRate: 18,
       winMoneySum: 2000,
       cardsToRemove: [],
       playerHand: {
