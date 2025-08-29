@@ -19,7 +19,6 @@
   const addNewRoundCardsToPlayers = () => {
     const dropCardsPlayers = [];
     for (const player of players) {
-      // добавляем новые карты в руку
       const productCard = decks.product.getRandomItem();
       if (productCard) productCard.moveToTarget(player.decks.product);
       const serviceCard = decks.service.getRandomItem();
@@ -48,11 +47,14 @@
     player.notifyUser('Если хочешь, то можешь добавить в сделку еще один продукт.');
     player.activate({ setData: { eventData: { controlBtn: { label: 'Завершить сделку' } } } });
 
+    player.decks.product.set({ eventData: { playDisabled: null } });
+    player.decks.product.set({ eventData: { playDisabled: null } });
     for (const card of player.decks.product.items()) {
       card.set({ eventData: { playDisabled: null, buttonText: 'Выбрать' } });
     }
     for (const card of player.decks.service.items()) {
-      card.set({ eventData: { playDisabled: true } });
+      const playDisabled = card.creditLimit ? null : true;
+      card.set({ eventData: { playDisabled } });
     }
 
     result.newRoundLogEvents.push(`Начались кросс-продажи клиенту.`);
@@ -63,6 +65,14 @@
     return { ...result, timerRestart: timer.CROSS_SALES };
   };
 
+  const disableTableCards = (player) => {
+    // у всех карт, выложенных на стол, убираем возможность возврата карты в руку делать через блокировку deck нельзя, потому что позже в нее будут добавляться дополнительные карты
+    for (const deck of player.select({ className: 'Deck', attr: { placement: 'table' } })) {
+      for (const card of deck.items()) {
+        card.set({ eventData: { playDisabled: true } });
+      }
+    }
+  };
   const showTableCards = () => {
     const { featureCard } = round;
     const { zone_feature: featureZone } = decks;
@@ -82,7 +92,7 @@
   const restorePlayersHands = () => {
     const { roundStepWinner } = round;
     for (const player of players) {
-      if (player === roundStepWinner) continue; // карты победителя сбрасываются
+      if (player === roundStepWinner) continue;
       player.returnTableCardsToHand();
     }
   };
@@ -176,14 +186,9 @@
         return { ...result, forcedEndRound: true };
       }
 
-      // у всех карт, выложенных на стол, убираем возможность возврата карты в руку делать через блокировку deck нельзя, потому что позже в нее будут добавляться дополнительные карты
-      for (const deck of player.select({ className: 'Deck', attr: { placement: 'table' } })) {
-        for (const card of deck.items()) {
-          card.set({ eventData: { playDisabled: true } });
-        }
-      }
-
       for (const { player } of relevantOffers) {
+        disableTableCards(player);
+
         player.activate({
           notifyUser: `Сделай второе предложение клиенту.`,
           setData: {
@@ -245,28 +250,22 @@
           : `Клиента заинтересовал продукт "${productCards[0].title}".`
       );
 
-      // у всех карт, выложенных на стол, убираем возможность возврата карты в руку делать через блокировку deck нельзя, потому что позже в нее будут добавляться дополнительные карты
-      for (const deck of player.select({ className: 'Deck', attr: { placement: 'table' } })) {
-        for (const card of deck.items()) {
-          card.set({ eventData: { playDisabled: true } });
-        }
-      }
+      disableTableCards(player);
 
       round.featureCard.play({ player });
 
-      // TODO
-      // if (player.findEvent({ present: true })) {
-      //   result.statusLabel = this.stepLabel('Подарок клиенту');
-      //   result.roundStep = 'PRESENT';
-      //   result.newRoundLogEvents.push(`Происходит выбор подарка клиенту.`);
-      //   player.activate();
+      if (player.findEvent({ present: true })) {
+        result.statusLabel = this.stepLabel('Подарок клиенту');
+        result.roundStep = 'PRESENT';
+        result.newRoundLogEvents.push(`Происходит выбор подарка клиенту.`);
+        player.activate();
 
-      //   if (player.ai) {
-      //     player.decks.service.set({ eventData: { playDisabled: null } });
-      //     return { ...result, forcedEndRound: true };
-      //   }
-      //   return { ...result, timerRestart: timer.PRESENT };
-      // }
+        if (player.ai) {
+          player.decks.service.set({ eventData: { playDisabled: null } });
+          return { ...result, forcedEndRound: true };
+        }
+        return { ...result, timerRestart: timer.PRESENT };
+      }
 
       return prepareCrossSalesStep();
     }
@@ -278,9 +277,6 @@
         eventData: { playDisabled: null }, // мог быть выставлен playDisabled после present-event
       });
 
-      result.newRoundLogEvents.push(`Начались продажи дополнительных сервисов клиенту.`); // TODO
-      result.statusLabel = this.stepLabel('Дополнительные продажи');
-      result.roundStep = 'SECOND_OFFER';
       return prepareCrossSalesStep();
     }
 
@@ -301,18 +297,22 @@
 
     case 'SHOW_RESULTS': {
       const { roundStepWinner } = round;
-      
+
       if (roundStepWinner) {
         const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
         const { player, productCards, price } = bestOffer;
 
-        result.newRoundLogEvents.push(
-          productCards.length > 1
-            ? `Клиент приобрел продукты: ${productCards
-                .map((c) => `"${c.title}"`)
-                .join(', ')} за ${new Intl.NumberFormat().format(price * 1000)}₽.`
-            : `Клиент приобрел продукт "${productCards[0].title}" за ${new Intl.NumberFormat().format(price * 1000)}₽.`
-        );
+        result.newRoundLogEvents.push({
+          msg:
+            productCards.length > 1
+              ? `Клиент приобрел продукты: ${productCards
+                  .map((c) => `"${c.title}"`)
+                  .join(', ')} за ${new Intl.NumberFormat().format(price * 1000)}₽ у игрока {{player}}.`
+              : `Клиент приобрел продукт "${productCards[0].title}" за ${new Intl.NumberFormat().format(
+                  price * 1000
+                )}₽ у игрока {{player}}.`,
+          userId: player.userId,
+        });
 
         const money = player.money + price;
         player.set({ money });

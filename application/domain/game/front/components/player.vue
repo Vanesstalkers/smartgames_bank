@@ -135,7 +135,9 @@ export default {
             })
           );
         }, [])
-        .sort((a, b) => (!a.crossSales && b.crossSales ? -1 : 1));
+        .sort((a, b) =>
+          a.group === 'product' && b.group === 'service' ? -1 : !a.crossSales && b.crossSales ? -1 : 1
+        );
     },
     tableCards() {
       return this.cardDecks

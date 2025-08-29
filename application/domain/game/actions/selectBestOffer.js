@@ -7,7 +7,7 @@
   if (featureCard.priceGroup) priceGroup.push(...featureCard.priceGroup);
 
   for (const { player, productCards, serviceCards } of Object.values(offersMap)) {
-    const offer = { player, priceGroup: [] };
+    const offer = { player, priceGroup: [], creditLimit: 1 };
     try {
       offer.player = player;
       offer.productCards = productCards;
@@ -16,6 +16,7 @@
       offer.priceGroup.push(...productCards.map((card) => card.priceGroup).flat());
 
       for (const card of serviceCards) {
+        if (card.creditLimit) offer.creditLimit += card.creditLimit / 100;
         if (!card.priceGroup?.length) continue;
         offer.priceGroup.push(...card.priceGroup);
       }
@@ -23,10 +24,10 @@
       offer.priceGroupMatches = offer.priceGroup.filter((group) => priceGroup.includes(group));
 
       const offerCards = [...productCards, ...serviceCards];
-      offer.stars = offerCards.reduce((sum, card) => sum + card.stars || 0, 0);
+      offer.stars = offerCards.reduce((sum, card) => sum + (card.stars || 0), 0);
       offer.price = productCards.reduce((sum, card) => {
-        const price = (clientCard.money * (card.depositIncome ? centralBankRate - card.price : card.price)) / 100;
-        console.info(card.price, price, clientCard.money, card.name);
+        const incomeRate = card.depositIncome ? centralBankRate - card.price : card.price;
+        const price = (offer.creditLimit * clientCard.money * incomeRate) / 100;
         return sum + price;
       }, 0);
     } catch (err) {
@@ -38,19 +39,38 @@
   }
 
   const bestOffer = { priceGroupMatchesCount: 0, stars: 0 };
+
+  const updateBestOffer = (player, offer) => {
+    bestOffer.priceGroupMatchesCount = offer.priceGroupMatches.length;
+    bestOffer.player = player;
+    bestOffer.productCards = offer.productCards;
+    bestOffer.serviceCards = offer.serviceCards;
+    bestOffer.price = offer.price;
+    bestOffer.stars = offer.stars;
+  };
+
+  const shouldUpdateBestOffer = (offer) => {
+    const matchesCount = offer.priceGroupMatches.length;
+    const currentMatchesCount = bestOffer.priceGroupMatchesCount;
+
+    if (currentMatchesCount < matchesCount) {
+      return true;
+    }
+
+    if (currentMatchesCount === matchesCount && bestOffer.stars < offer.stars) {
+      return true;
+    }
+
+    if (currentMatchesCount === matchesCount && bestOffer.stars === offer.stars && bestOffer.price > offer.price) {
+      return true;
+    }
+
+    return false;
+  };
+
   for (const { player, ...offer } of offers) {
-    if (bestOffer.priceGroupMatchesCount < offer.priceGroupMatches.length) {
-      bestOffer.priceGroupMatchesCount = offer.priceGroupMatches.length;
-      bestOffer.player = player;
-      bestOffer.productCards = offer.productCards;
-      bestOffer.serviceCards = offer.serviceCards;
-      bestOffer.price = offer.price;
-    } else if (bestOffer.priceGroupMatchesCount == offer.priceGroupMatches.length && bestOffer.stars < offer.stars) {
-      bestOffer.priceGroupMatchesCount = offer.priceGroupMatches.length;
-      bestOffer.player = player;
-      bestOffer.productCards = offer.productCards;
-      bestOffer.serviceCards = offer.serviceCards;
-      bestOffer.price = offer.price;
+    if (shouldUpdateBestOffer(offer)) {
+      updateBestOffer(player, offer);
     }
   }
   return { bestOffer, relevantOffers: offers };
