@@ -19,6 +19,7 @@
         if (!card.priceGroup?.length) continue;
         offer.priceGroup.push(...card.priceGroup);
       }
+      offer.priceGroup = [...new Set(offer.priceGroup)];
       offer.priceGroupMatches = offer.priceGroup.filter((group) => priceGroup.includes(group));
 
       const offerCards = [...productCards, ...serviceCards];

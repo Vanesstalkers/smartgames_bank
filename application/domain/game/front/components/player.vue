@@ -127,15 +127,15 @@ export default {
     },
     handCards() {
       return this.cardDecks
-        .filter(({ placement }) => placement !== 'table')
+        .filter((c) => c.placement !== 'table')
         .reduce((arr, deck) => {
           return arr.concat(
             Object.entries(deck.itemMap).map(([id, { group }]) => {
-              return { id, group, deck };
+              return { id, group, deck, ...this.store.card?.[id] };
             })
           );
         }, [])
-        .sort((a, b) => (a.cardOrder > b.cardOrder ? -1 : 1));
+        .sort((a, b) => (!a.crossSales && b.crossSales ? -1 : 1));
     },
     tableCards() {
       return this.cardDecks
@@ -183,11 +183,12 @@ export default {
         const tableProductStars = this.store.card?.[tableProduct.id]?.stars || 0;
         const onlyOneProduct =
           card.group !== 'product' || ((!tableProduct || tableProductStars === 0) && tableProducts.length < 2);
-        console.log('tableProducts=', tableProducts);
         customCheck = onlyOneProduct || card.deck.placement === 'table';
       }
 
-      return this.iam && playerAvailable && deckAvailable && customCheck;
+      const checkCrossSales =
+        !card.crossSales || (card.eventData?.activeEvents?.find((e) => e.name === 'dropCard') ? true : false);
+      return this.iam && playerAvailable && deckAvailable && customCheck && checkCrossSales;
     },
     tutorialAction() {
       this.helperChecked = true;

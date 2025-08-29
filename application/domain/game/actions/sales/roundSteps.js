@@ -45,9 +45,6 @@
       return { ...result, forcedEndRound: true };
     }
 
-    round.crossSalesCard.moveToTarget(player.decks.played);
-    round.crossSalesCard.set({ visible: true, eventData: { playDisabled: true } });
-
     player.notifyUser('Если хочешь, то можешь добавить в сделку еще один продукт.');
     player.activate({ setData: { eventData: { controlBtn: { label: 'Завершить сделку' } } } });
 
@@ -303,7 +300,9 @@
     }
 
     case 'SHOW_RESULTS': {
-      if (round.roundStepWinner) {
+      const { roundStepWinner } = round;
+      
+      if (roundStepWinner) {
         const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
         const { player, productCards, price } = bestOffer;
 
@@ -317,6 +316,9 @@
 
         const money = player.money + price;
         player.set({ money });
+
+        const crossSales = roundStepWinner.decks.played.items().filter((c) => !c.eventData.playDisabled);
+        if (crossSales.length) round.crossSalesCard.moveToTarget(roundStepWinner.decks.played);
 
         if (money >= winMoneySum) return this.run('endGame', { winningPlayer: player });
       }

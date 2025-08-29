@@ -4,7 +4,7 @@
     this.broadcastableFields(
       this.broadcastableFields().concat(
         // добавляем недостающие поля
-        ['price', 'money', 'group', 'stars', 'risk', 'priceGroup', 'depositIncome', 'present']
+        ['price', 'money', 'group', 'stars', 'risk', 'priceGroup', 'depositIncome', 'present', 'crossSales']
       )
     );
 
