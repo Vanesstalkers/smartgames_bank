@@ -1,6 +1,4 @@
 (function () {
-  // TO_CHANGE - все закомментированное
-
   const {
     rounds,
     round: roundNumber,
@@ -63,16 +61,16 @@
   }
   const getOffersMap = () => {
     const offersMap = {};
-    // for (const player of players) {
-    //   const productCards = player.decks.played.items().filter((c) => c.subtype === 'product');
-    //   if (!productCards.length) continue;
+    for (const player of players) {
+      const productCards = player.decks.played.items().filter((c) => c.subtype === 'product');
+      if (!productCards.length) continue;
 
-    //   offersMap[productCards[0].id()] = {
-    //     player,
-    //     productCards,
-    //     serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
-    //   };
-    // }
+      offersMap[productCards[0].id()] = {
+        player,
+        productCards,
+        serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
+      };
+    }
     return offersMap;
   };
 
@@ -92,12 +90,12 @@
       const handCardsCount = players.length < 5 ? 4 : players.length < 7 ? 3 : 2;
 
       const requiredCardsCount = handCardsCount * players.length;
-      // if (decks.car.itemsCount() < requiredCardsCount) decks.car_drop.moveAllItems({ toDeck: true });
-      // if (decks.service.itemsCount() < requiredCardsCount) decks.service_drop.moveAllItems({ toDeck: true });
+      if (decks.product.itemsCount() < requiredCardsCount) decks.car_drop.moveAllItems({ toDeck: true });
+      if (decks.service.itemsCount() < requiredCardsCount) decks.service_drop.moveAllItems({ toDeck: true });
 
-      // if (decks.client.itemsCount() === 0) decks.client_drop.moveAllItems({ toDeck: true });
-      // if (decks.feature.itemsCount() === 0) decks.feature_drop.moveAllItems({ toDeck: true });
-      // if (decks.credit.itemsCount() === 0) decks.credit_drop.moveAllItems({ toDeck: true });
+      if (decks.product.itemsCount() === 0) decks.client_drop.moveAllItems({ toDeck: true });
+      if (decks.feature.itemsCount() === 0) decks.feature_drop.moveAllItems({ toDeck: true });
+      if (decks.scoring.itemsCount() === 0) decks.scoring_drop.moveAllItems({ toDeck: true });
 
       round.bets = {};
       for (const player of players) {
@@ -113,8 +111,8 @@
           target: player.decks.hand,
           setData: { eventData: { playDisabled: true } },
         };
-        // decks.car.moveRandomItems(moveConfig);
-        // decks.service.moveRandomItems(moveConfig);
+        decks.product.moveRandomItems(moveConfig);
+        decks.service.moveRandomItems(moveConfig);
       }
 
       round.smallBlindPlayer = prevSmallBlindPlayer ? prevSmallBlindPlayer.nextPlayer() : players[0];
@@ -126,12 +124,12 @@
       round.bigBlindPlayer.bet(bigBlindSum);
       round.currentPlayer = round.bigBlindPlayer.nextPlayer();
 
-      // round.clientCard = decks.client.getRandomItem();
-      // round.clientCard.moveToTarget(decks.zone_flop, { setVisible: true });
-      // round.featureCard = decks.feature.getRandomItem();
-      // round.featureCard.moveToTarget(decks.zone_turn);
-      // round.creditCard = decks.credit.getRandomItem();
-      // round.creditCard.moveToTarget(decks.zone_river);
+      round.clientCard = decks.client.getRandomItem();
+      round.clientCard.moveToTarget(decks.zone_flop, { setVisible: true });
+      round.featureCard = decks.feature.getRandomItem();
+      round.featureCard.moveToTarget(decks.zone_turn);
+      round.scoringCard = decks.scoring.getRandomItem();
+      round.scoringCard.moveToTarget(decks.zone_river);
 
       round.currentPlayer.activate({
         notifyUser: 'Сделай свою ставку',
@@ -160,34 +158,38 @@
       if (allPlayersReady) {
         switch (round.step) {
           case 'flop':
-            // zoneTurn.setItemVisible(round.featureCard);
+            zoneTurn.setItemVisible(round.featureCard);
             round.step = 'turn';
             break;
 
           case 'turn':
-            // zoneRiver.setItemVisible(round.creditCard);
+            zoneRiver.setItemVisible(round.scoringCard);
             round.step = 'river';
             break;
 
           case 'river':
             const offersMap = {};
             for (const player of players) {
-              // Object.assign(offersMap, player.getAvailableOffers({ clientCard: round.clientCard }));
+              Object.assign(offersMap, player.getAvailableOffers({ clientCard: round.clientCard }));
             }
 
-            // const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
-            // const { player: winner, carCard, serviceCards, price } = bestOffer;
+            const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
+            const {
+              player: winner,
+              productCards: [productCard],
+              serviceCards,
+            } = bestOffer;
 
-            // if (winner) {
-            //   round.roundStepWinner = winner;
+            if (winner) {
+              round.roundStepWinner = winner;
 
-            //   carCard.moveToTarget(winner.decks.played);
-            //   winner.decks.played.setItemVisible(carCard);
-            //   for (const card of serviceCards) {
-            //     card.moveToTarget(winner.decks.played);
-            //     winner.decks.played.setItemVisible(card);
-            //   }
-            // }
+              productCard.moveToTarget(winner.decks.played);
+              winner.decks.played.setItemVisible(productCard);
+              for (const card of serviceCards) {
+                card.moveToTarget(winner.decks.played);
+                winner.decks.played.setItemVisible(card);
+              }
+            }
 
             result.roundStep = 'SHOW_RESULTS';
             break;
@@ -242,11 +244,11 @@
     }
 
     case 'ROUND_END': {
-      // const { clientCard, featureCard, creditCard } = round;
+      const { clientCard, featureCard, scoringCard } = round;
 
-      // clientCard.moveToDrop();
-      // featureCard.moveToDrop();
-      // creditCard.moveToDrop();
+      clientCard.moveToDrop();
+      featureCard.moveToDrop();
+      scoringCard.moveToDrop();
 
       for (const player of players) {
         player.decks.hand.moveAllItems({ toDrop: true });

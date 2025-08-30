@@ -86,7 +86,7 @@
           SHOW_RESULTS: Math.max(15, Math.ceil(baseTimer / 2)),
         };
       },
-      cardsToRemove: [],
+      cardsToRemove: ['friend1', 'friend2', 'present1', 'present2', 'problem1', 'problem2', 'problem3', 'problem4'],
       playerHand: {},
       autoFinishAfterRoundsOverdue: 10,
       playerStartMoney: 10000,
@@ -103,14 +103,14 @@
 
       playerList: [],
       deckList: [
-        { type: 'card', subtype: 'car', placement: 'main', hasDrop: true },
+        { type: 'card', subtype: 'product', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'service', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'client', placement: 'main', hasDrop: true },
-        // { type: 'card', subtype: 'credit', placement: 'main', hasDrop: true },
         { type: 'card', subtype: 'feature', placement: 'main', hasDrop: true },
-        { type: 'card', subtype: 'zone_client', placement: 'table' },
-        { type: 'card', subtype: 'zone_feature', placement: 'table' },
-        // { type: 'card', subtype: 'zone_credit', placement: 'table' },
+        { type: 'card', subtype: 'scoring', placement: 'main', hasDrop: true },
+        { type: 'card', subtype: 'zone_flop', placement: 'table' },
+        { type: 'card', subtype: 'zone_turn', placement: 'table' },
+        { type: 'card', subtype: 'zone_river', placement: 'table' },
       ],
     },
   },

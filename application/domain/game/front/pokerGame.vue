@@ -232,6 +232,16 @@ const DECK_CODES = [
   'Deck[card_credit_drop]',
   'Deck[card_car_drop]',
   'Deck[card_service_drop]', */
+  'Deck[card_client]',
+  'Deck[card_feature]',
+  'Deck[card_scoring]',
+  'Deck[card_product]',
+  'Deck[card_service]',
+  'Deck[card_client_drop]',
+  'Deck[card_feature_drop]',
+  'Deck[card_scoring_drop]',
+  'Deck[card_product_drop]',
+  'Deck[card_service_drop]',
 ];
 
 export default {

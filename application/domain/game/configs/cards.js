@@ -5,11 +5,11 @@
     ...[
       {
         ...{ group: 'product', name: 'g_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 10, priceGroup: ['cheap'] },
+        ...{ stars: 2, price: 10, risk: 2, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 10, priceGroup: ['cheap'] },
+        ...{ stars: 2, price: 10, risk: 1, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_deposit', title: 'Депозит' },
@@ -17,11 +17,11 @@
       },
       {
         ...{ group: 'product', name: 'g_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 15, priceGroup: ['cheap'] },
+        ...{ stars: 1, price: 15, risk: 3, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 20, priceGroup: ['cheap'] },
+        ...{ stars: 1, price: 20, risk: 4, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_bankcard', title: 'Дебетовая карта' },
@@ -31,11 +31,11 @@
       { group: 'product', name: 'g_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['cheap'] },
       {
         ...{ group: 'product', name: 'v_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 12, priceGroup: ['vip'] },
+        ...{ stars: 2, price: 12, risk: 3, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 11, priceGroup: ['vip'] },
+        ...{ stars: 2, price: 11, risk: 2, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_deposit', title: 'Депозит' },
@@ -43,7 +43,7 @@
       },
       {
         ...{ group: 'product', name: 'v_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 20, priceGroup: ['vip'] },
+        ...{ stars: 1, price: 20, risk: 4, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_creditcard', title: 'Кредитная карта' },
@@ -57,11 +57,11 @@
       { group: 'product', name: 'v_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['vip'] },
       {
         ...{ group: 'product', name: 'r_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 14, priceGroup: ['tech'] },
+        ...{ stars: 2, price: 14, risk: 4, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 12, priceGroup: ['tech'] },
+        ...{ stars: 2, price: 12, risk: 3, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_deposit', title: 'Депозит' },
@@ -69,11 +69,11 @@
       },
       {
         ...{ group: 'product', name: 'r_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 25, priceGroup: ['tech'] },
+        ...{ stars: 1, price: 25, risk: 5, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 30, priceGroup: ['tech'] },
+        ...{ stars: 1, price: 30, risk: 6, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_bankcard', title: 'Дебетовая карта' },
@@ -83,11 +83,11 @@
       { group: 'product', name: 'r_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['tech'] },
       {
         ...{ group: 'product', name: 'b_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 16, priceGroup: ['speed'] },
+        ...{ stars: 2, price: 16, risk: 5, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 13, priceGroup: ['speed'] },
+        ...{ stars: 2, price: 13, risk: 4, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_deposit', title: 'Депозит' },
@@ -95,11 +95,11 @@
       },
       {
         ...{ group: 'product', name: 'b_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 30, priceGroup: ['speed'] },
+        ...{ stars: 1, price: 30, risk: 6, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 35, priceGroup: ['speed'] },
+        ...{ stars: 1, price: 35, risk: 7, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_bankcard', title: 'Дебетовая карта' },
@@ -232,6 +232,39 @@
         ...{ group: 'feature', name: 'problem4', title: 'Проблемный клиент' },
         event: { name: 'present', message: 'Клиент оказался проблемным.' },
       },
+    ],
+    // group: 'scoring'
+    ...[
+      { group: 'scoring', name: 'score_contact0', title: 'Контактные лица (0)', risk: 0 },
+      { group: 'scoring', name: 'score_contact+1', title: 'Контактные лица (+1)', risk: 1 },
+      { group: 'scoring', name: 'score_contact+2', title: 'Контактные лица (+2)', risk: 2 },
+      { group: 'scoring', name: 'score_contact-1', title: 'Контактные лица (-1)', risk: -1 },
+      { group: 'scoring', name: 'score_contact-2', title: 'Контактные лица (-2)', risk: -2 },
+      { group: 'scoring', name: 'score_bdin0', title: 'Внутренние базы (0)', risk: 0 },
+      { group: 'scoring', name: 'score_bdin+1', title: 'Внутренние базы (+1)', risk: 1 },
+      { group: 'scoring', name: 'score_bdin+2', title: 'Внутренние базы (+2)', risk: 2 },
+      { group: 'scoring', name: 'score_bdin-1', title: 'Внутренние базы (-1)', risk: -1 },
+      { group: 'scoring', name: 'score_bdin-2', title: 'Внутренние базы (-2)', risk: -2 },
+      { group: 'scoring', name: 'score_bdout0', title: 'Внешние базы (0)', risk: 0 },
+      { group: 'scoring', name: 'score_bdout+1', title: 'Внешние базы (+1)', risk: 1 },
+      { group: 'scoring', name: 'score_bdout+2', title: 'Внешние базы (+2)', risk: 2 },
+      { group: 'scoring', name: 'score_bdout-1', title: 'Внешние базы (-1)', risk: -1 },
+      { group: 'scoring', name: 'score_bdout-2', title: 'Внешние базы (-2)', risk: -2 },
+      { group: 'scoring', name: 'score_call0', title: 'Звонок клиенту (0)', risk: 0 },
+      { group: 'scoring', name: 'score_call+1', title: 'Звонок клиенту (+1)', risk: 1 },
+      { group: 'scoring', name: 'score_call+2', title: 'Звонок клиенту (+2)', risk: 2 },
+      { group: 'scoring', name: 'score_call-1', title: 'Звонок клиенту (-1)', risk: -1 },
+      { group: 'scoring', name: 'score_call-2', title: 'Звонок клиенту (-2)', risk: -2 },
+      { group: 'scoring', name: 'score_hr0', title: 'Отдел кадров (0)', risk: 0 },
+      { group: 'scoring', name: 'score_hr+1', title: 'Отдел кадров (+1)', risk: 1 },
+      { group: 'scoring', name: 'score_hr+2', title: 'Отдел кадров (+2)', risk: 2 },
+      { group: 'scoring', name: 'score_hr-1', title: 'Отдел кадров (-1)', risk: -1 },
+      { group: 'scoring', name: 'score_hr-2', title: 'Отдел кадров (-2)', risk: -2 },
+      { group: 'scoring', name: 'score_soc0', title: 'Социальные сети (0)', risk: 0 },
+      { group: 'scoring', name: 'score_soc+1', title: 'Социальные сети (+1)', risk: 1 },
+      { group: 'scoring', name: 'score_soc+2', title: 'Социальные сети (+2)', risk: 2 },
+      { group: 'scoring', name: 'score_soc-1', title: 'Социальные сети (-1)', risk: -1 },
+      { group: 'scoring', name: 'score_soc-2', title: 'Социальные сети (-2)', risk: -2 },
     ],
   ],
 });
