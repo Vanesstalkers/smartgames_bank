@@ -1,6 +1,6 @@
-(function ({ offersMap }) {
+(function ({ offersMap, checkRisk = false }) {
   const { centralBankRate } = this.settings;
-  const { clientCard, featureCard } = this.rounds[this.round];
+  const { clientCard, featureCard, scoringCard } = this.rounds[this.round];
   const offers = [];
 
   const priceGroup = [...clientCard.priceGroup];
@@ -26,7 +26,11 @@
       const offerCards = [...productCards, ...serviceCards];
       offer.stars = offerCards.reduce((sum, card) => sum + (card.stars || 0), 0);
       offer.price = productCards.reduce((sum, card) => {
-        const incomeRate = card.depositIncome ? centralBankRate - card.price : card.price;
+        const incomeRate = card.depositIncome
+          ? centralBankRate - card.price
+          : card.risk
+          ? card.price - centralBankRate
+          : card.price;
         const price = (offer.creditLimit * clientCard.money * incomeRate) / 100;
         return sum + price;
       }, 0);
@@ -39,6 +43,7 @@
   }
 
   const bestOffer = { priceGroupMatchesCount: 0, stars: 0 };
+  const riskOffers = [];
 
   const updateBestOffer = (player, offer) => {
     bestOffer.priceGroupMatchesCount = offer.priceGroupMatches.length;
@@ -50,8 +55,19 @@
   };
 
   const shouldUpdateBestOffer = (offer) => {
+    const productCard = offer.productCards[0];
     const matchesCount = offer.priceGroupMatches.length;
     const currentMatchesCount = bestOffer.priceGroupMatchesCount;
+
+    if (checkRisk && productCard.risk && productCard.risk + scoringCard.risk < clientCard.risk) {
+      riskOffers.push({
+        productName: productCard.name,
+        productRisk: productCard.risk,
+        scoringRisk: scoringCard.risk,
+        clientRisk: clientCard.risk,
+      });
+      return false;
+    }
 
     if (currentMatchesCount < matchesCount) {
       return true;
@@ -73,5 +89,5 @@
       updateBestOffer(player, offer);
     }
   }
-  return { bestOffer, relevantOffers: offers };
+  return { bestOffer, relevantOffers: offers, riskOffers };
 });

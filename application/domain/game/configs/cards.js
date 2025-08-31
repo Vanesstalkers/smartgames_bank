@@ -5,105 +5,105 @@
     ...[
       {
         ...{ group: 'product', name: 'g_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 10, risk: 2, priceGroup: ['cheap'] },
+        ...{ stars: 2, price: 25, risk: 2, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 10, risk: 1, priceGroup: ['cheap'] },
+        ...{ stars: 2, price: 22, risk: 1, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_deposit', title: 'Депозит' },
-        ...{ stars: 1, price: 4, priceGroup: ['cheap'], depositIncome: true },
+        ...{ stars: 1, price: 10, priceGroup: ['cheap'], depositIncome: true },
       },
       {
         ...{ group: 'product', name: 'g_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 15, risk: 3, priceGroup: ['cheap'] },
+        ...{ stars: 1, price: 30, risk: 3, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 20, risk: 4, priceGroup: ['cheap'] },
+        ...{ stars: 1, price: 35, risk: 4, priceGroup: ['cheap'] },
       },
       {
         ...{ group: 'product', name: 'g_bankcard', title: 'Дебетовая карта' },
-        ...{ price: 1, priceGroup: ['cheap'], depositIncome: true, present: true },
+        ...{ price: 4, priceGroup: ['cheap'], depositIncome: true, present: true },
       },
       { group: 'product', name: 'g_safebox', title: 'Сейфовая ячейка', price: 1, priceGroup: ['cheap'], present: true },
       { group: 'product', name: 'g_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['cheap'] },
       {
         ...{ group: 'product', name: 'v_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 12, risk: 3, priceGroup: ['vip'] },
+        ...{ stars: 2, price: 27, risk: 3, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 11, risk: 2, priceGroup: ['vip'] },
+        ...{ stars: 2, price: 23, risk: 2, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_deposit', title: 'Депозит' },
-        ...{ stars: 1, price: 6, priceGroup: ['vip'], depositIncome: true },
+        ...{ stars: 1, price: 12, priceGroup: ['vip'], depositIncome: true },
       },
       {
         ...{ group: 'product', name: 'v_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 20, risk: 4, priceGroup: ['vip'] },
+        ...{ stars: 1, price: 35, risk: 4, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 25, priceGroup: ['vip'] },
+        ...{ stars: 1, price: 40, risk: 5, priceGroup: ['vip'] },
       },
       {
         ...{ group: 'product', name: 'v_bankcard', title: 'Дебетовая карта' },
-        ...{ price: 4, priceGroup: ['vip'], depositIncome: true, present: true },
+        ...{ price: 7, priceGroup: ['vip'], depositIncome: true, present: true },
       },
       { group: 'product', name: 'v_safebox', title: 'Сейфовая ячейка', price: 1, priceGroup: ['vip'], present: true },
       { group: 'product', name: 'v_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['vip'] },
       {
         ...{ group: 'product', name: 'r_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 14, risk: 4, priceGroup: ['tech'] },
+        ...{ stars: 2, price: 29, risk: 4, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 12, risk: 3, priceGroup: ['tech'] },
+        ...{ stars: 2, price: 24, risk: 3, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_deposit', title: 'Депозит' },
-        ...{ stars: 1, price: 8, priceGroup: ['tech'], depositIncome: true },
+        ...{ stars: 1, price: 14, priceGroup: ['tech'], depositIncome: true },
       },
       {
         ...{ group: 'product', name: 'r_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 25, risk: 5, priceGroup: ['tech'] },
+        ...{ stars: 1, price: 40, risk: 5, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 30, risk: 6, priceGroup: ['tech'] },
+        ...{ stars: 1, price: 45, risk: 6, priceGroup: ['tech'] },
       },
       {
         ...{ group: 'product', name: 'r_bankcard', title: 'Дебетовая карта' },
-        ...{ price: 7, priceGroup: ['tech'], depositIncome: true, present: true },
+        ...{ price: 10, priceGroup: ['tech'], depositIncome: true, present: true },
       },
       { group: 'product', name: 'r_safebox', title: 'Сейфовая ячейка', price: 1, priceGroup: ['tech'], present: true },
       { group: 'product', name: 'r_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['tech'] },
       {
         ...{ group: 'product', name: 'b_autocredit', title: 'Автокредит' },
-        ...{ stars: 2, price: 16, risk: 5, priceGroup: ['speed'] },
+        ...{ stars: 2, price: 31, risk: 5, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_mortgage', title: 'Ипотека' },
-        ...{ stars: 2, price: 13, risk: 4, priceGroup: ['speed'] },
+        ...{ stars: 2, price: 25, risk: 4, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_deposit', title: 'Депозит' },
-        ...{ stars: 1, price: 10, priceGroup: ['speed'], depositIncome: true },
+        ...{ stars: 1, price: 16, priceGroup: ['speed'], depositIncome: true },
       },
       {
         ...{ group: 'product', name: 'b_credit', title: 'Кредит наличными' },
-        ...{ stars: 1, price: 30, risk: 6, priceGroup: ['speed'] },
+        ...{ stars: 1, price: 45, risk: 6, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_creditcard', title: 'Кредитная карта' },
-        ...{ stars: 1, price: 35, risk: 7, priceGroup: ['speed'] },
+        ...{ stars: 1, price: 50, risk: 7, priceGroup: ['speed'] },
       },
       {
         ...{ group: 'product', name: 'b_bankcard', title: 'Дебетовая карта' },
-        ...{ price: 10, priceGroup: ['speed'], depositIncome: true, present: true },
+        ...{ price: 13, priceGroup: ['speed'], depositIncome: true, present: true },
       },
       { group: 'product', name: 'b_safebox', title: 'Сейфовая ячейка', price: 1, priceGroup: ['speed'], present: true },
       { group: 'product', name: 'b_exchange', title: 'Обмен валюты', price: 2, priceGroup: ['speed'] },

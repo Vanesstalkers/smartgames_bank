@@ -11,68 +11,8 @@
   const result = { newRoundLogEvents: [], newRoundNumber: roundNumber };
 
   function initBetEvent(player) {
-    player.initEvent({
-      name: 'betEvent',
-      handlers: {
-        TRIGGER({ action, amount }) {
-          const { game, player } = this.eventContext();
-          const round = game.rounds[game.round];
-          const playerBet = round.bets[player.id()];
-
-          switch (action) {
-            case 'raise':
-              game.logs({ msg: `Игрок {{player}} поднял ставку на ${amount}₽.`, userId: player.userId });
-
-              for (const player of game.players()) {
-                const bet = round.bets[player.id()];
-                if (bet.out) continue;
-                bet.ready = false;
-              }
-
-              player.bet(amount);
-              playerBet.raiseCount++;
-              playerBet.ready = true;
-              break;
-            case 'call':
-              game.logs({ msg: `Игрок {{player}} уровнял ставку до ${amount}₽.`, userId: player.userId });
-              player.bet(amount);
-              playerBet.ready = true;
-              break;
-            case 'check':
-              game.logs({ msg: `Игрок {{player}} пропустил ставку.`, userId: player.userId });
-              playerBet.ready = true;
-              break;
-            case 'reset':
-              game.logs({ msg: `Игрок {{player}} сбросил карты.`, userId: player.userId });
-              playerBet.ready = true;
-              playerBet.out = true;
-              break;
-          }
-
-          this.emit('RESET');
-          game.run('roundEnd', {}, player);
-        },
-        ROUND_END() {
-          const { game, player } = this.eventContext();
-          this.emit('TRIGGER', { action: 'check' }, player);
-        },
-      },
-    });
+    player.initEvent(domain.game.poker.events.betEvent());
   }
-  const getOffersMap = () => {
-    const offersMap = {};
-    for (const player of players) {
-      const productCards = player.decks.played.items().filter((c) => c.subtype === 'product');
-      if (!productCards.length) continue;
-
-      offersMap[productCards[0].id()] = {
-        player,
-        productCards,
-        serviceCards: player.decks.played.items().filter((c) => c.subtype === 'service'),
-      };
-    }
-    return offersMap;
-  };
 
   switch (this.roundStep) {
     case 'ROUND_START': {
@@ -90,10 +30,10 @@
       const handCardsCount = players.length < 5 ? 4 : players.length < 7 ? 3 : 2;
 
       const requiredCardsCount = handCardsCount * players.length;
-      if (decks.product.itemsCount() < requiredCardsCount) decks.car_drop.moveAllItems({ toDeck: true });
+      if (decks.product.itemsCount() < requiredCardsCount) decks.product_drop.moveAllItems({ toDeck: true });
       if (decks.service.itemsCount() < requiredCardsCount) decks.service_drop.moveAllItems({ toDeck: true });
 
-      if (decks.product.itemsCount() === 0) decks.client_drop.moveAllItems({ toDeck: true });
+      if (decks.client.itemsCount() === 0) decks.client_drop.moveAllItems({ toDeck: true });
       if (decks.feature.itemsCount() === 0) decks.feature_drop.moveAllItems({ toDeck: true });
       if (decks.scoring.itemsCount() === 0) decks.scoring_drop.moveAllItems({ toDeck: true });
 
@@ -135,7 +75,7 @@
         notifyUser: 'Сделай свою ставку',
         setData: { eventData: { controlBtn: { triggerEvent: true } } },
       });
-      initBetEvent(round.currentPlayer);
+      round.currentPlayer.initEvent(domain.game.poker.events.betEvent());
 
       result.statusLabel = `Раунд ${result.newRoundNumber} (Префлоп)`;
       result.roundStep = 'BET';
@@ -160,28 +100,33 @@
           case 'flop':
             zoneTurn.setItemVisible(round.featureCard);
             round.step = 'turn';
-            break;
+          // break;
 
           case 'turn':
             zoneRiver.setItemVisible(round.scoringCard);
             round.step = 'river';
-            break;
+          // break;
 
           case 'river':
             const offersMap = {};
             for (const player of players) {
-              Object.assign(offersMap, player.getAvailableOffers({ clientCard: round.clientCard }));
+              const offers = this.run('getAvailableOffers', {}, player);
+              Object.assign(offersMap, offers);
             }
 
-            const { bestOffer, relevantOffers } = this.run('selectBestOffer', { offersMap: getOffersMap() });
+            const { bestOffer, relevantOffers, riskOffers } = this.run('selectBestOffer', {
+              offersMap,
+              checkRisk: true,
+            });
             const {
               player: winner,
               productCards: [productCard],
               serviceCards,
             } = bestOffer;
-
+            round.riskOffers = riskOffers;
             if (winner) {
               round.roundStepWinner = winner;
+              round.bestOffer = bestOffer;
 
               productCard.moveToTarget(winner.decks.played);
               winner.decks.played.setItemVisible(productCard);
@@ -211,7 +156,7 @@
         notifyUser: 'Сделай свою ставку',
         setData: { eventData: { controlBtn: { triggerEvent: true } } },
       });
-      initBetEvent(round.currentPlayer);
+      round.currentPlayer.initEvent(domain.game.poker.events.betEvent());
 
       result.statusLabel = `Раунд ${result.newRoundNumber} (ставка игрока ${nextPlayer.userName})`;
       result.roundStep = 'BET';
@@ -256,6 +201,8 @@
       }
 
       round.roundStepWinner = null;
+      round.bestOffer = null;
+      round.riskOffers = null;
 
       result.roundStep = 'ROUND_START';
       return { ...result, forcedEndRound: true };
