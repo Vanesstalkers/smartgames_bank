@@ -37,6 +37,7 @@
         },
       },
       autoFinishAfterRoundsOverdue: 10,
+      centralBankRate: 18,
 
       playerList: [
         {

@@ -135,15 +135,15 @@ export default {
             })
           );
         }, [])
-        .sort((a, b) =>
-          a.group === 'product' && b.group === 'service' ? -1 : !a.crossSales && b.crossSales ? -1 : 1
-        );
+        .sort((a, b) => (a.group === 'product' && b.group === 'service' ? -1 : !a.crossSales && b.crossSales ? -1 : 1));
     },
     tableCards() {
       return this.cardDecks
         .filter(({ placement }) => placement === 'table')
         .reduce((arr, deck) => {
-          return arr.concat(Object.entries(deck.itemMap).map(([id, { group }]) => ({ id, group, deck })));
+          return arr.concat(
+            Object.entries(deck.itemMap).map(([id, { group }]) => ({ id, group, deck, ...this.store.card?.[id] }))
+          );
         }, []);
     },
     deckIds() {
@@ -185,6 +185,13 @@ export default {
         const tableProductStars = this.store.card?.[tableProduct.id]?.stars || 0;
         const onlyOneProduct =
           card.group !== 'product' || ((!tableProduct || tableProductStars === 0) && tableProducts.length < 2);
+        customCheck = onlyOneProduct || card.deck.placement === 'table';
+      }
+      if (this.game.roundStep === 'CROSS_SALES') {
+        const crossSalesTableProducts = this.tableCards.filter(
+          (card) => card.group === 'product' && !card.eventData?.playDisabled
+        );
+        const onlyOneProduct = card.group !== 'product' || crossSalesTableProducts.length < 1;
         customCheck = onlyOneProduct || card.deck.placement === 'table';
       }
 

@@ -53,8 +53,7 @@
       card.set({ eventData: { playDisabled: null, buttonText: 'Выбрать' } });
     }
     for (const card of player.decks.service.items()) {
-      const playDisabled = card.creditLimit ? null : true;
-      card.set({ eventData: { playDisabled } });
+      card.set({ eventData: { playDisabled: null, buttonText: 'Выбрать' } });
     }
 
     result.newRoundLogEvents.push(`Начались кросс-продажи клиенту.`);

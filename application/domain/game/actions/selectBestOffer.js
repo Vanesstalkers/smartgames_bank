@@ -30,7 +30,7 @@
           ? centralBankRate - card.price
           : card.risk
           ? card.price - centralBankRate
-          : card.price;
+          : card.price; // тут Обмен валюты и Сейфовая ячейка
         const price = (offer.creditLimit * clientCard.money * incomeRate) / 100;
         return sum + price;
       }, 0);
