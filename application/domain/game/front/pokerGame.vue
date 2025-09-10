@@ -221,17 +221,6 @@ import chipBB from './assets/big-blind.png';
 
 // Константы
 const DECK_CODES = [
-  // TO_CHANGE
-  /* 'Deck[card_client]',
-  'Deck[card_feature]',
-  'Deck[card_credit]',
-  'Deck[card_car]',
-  'Deck[card_service]',
-  'Deck[card_client_drop]',
-  'Deck[card_feature_drop]',
-  'Deck[card_credit_drop]',
-  'Deck[card_car_drop]',
-  'Deck[card_service_drop]', */
   'Deck[card_client]',
   'Deck[card_feature]',
   'Deck[card_scoring]',
