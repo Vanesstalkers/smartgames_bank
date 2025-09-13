@@ -1,5 +1,6 @@
 () => ({
   path: (card) => `${card.group}/${card.name}.png`,
+  filter: (card) => card.group !== 'scoring' || (!card.name.includes('-') && !card.name.includes('+')),
   list: [
     // group: 'product'
     ...[
