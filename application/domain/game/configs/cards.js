@@ -1,7 +1,5 @@
-() => ({
-  path: (card) => `${card.group}/${card.name}.png`,
-  filter: (card) => card.group !== 'scoring' || (!card.name.includes('-') && !card.name.includes('+')),
-  list: [
+(function({ apiRequest, selectGroup, template } = {}) {
+  const list = [
     // group: 'product'
     ...[
       {
@@ -267,5 +265,23 @@
       { group: 'scoring', name: 'score_soc-1', title: 'Социальные сети (-1)', risk: -1 },
       { group: 'scoring', name: 'score_soc-2', title: 'Социальные сети (-2)', risk: -2 },
     ],
-  ],
+  ];
+
+  const configGames = domain.game.configs.games();
+  const [{ itemsDefault: { centralBankRate } }] = Object.values(configGames);
+  const result = list
+    .filter((card) => !selectGroup || card.group === selectGroup)
+    .filter((card) => card.group !== 'scoring' || (!card.name.includes('-') && !card.name.includes('+')))
+    .map((card) =>
+      (apiRequest ?
+        {
+          price: selectGroup === 'product' ?
+            parseInt(card.depositIncome ? centralBankRate - card.price : card.price) : undefined,
+          stars: selectGroup === 'product' ? card.stars : undefined,
+          priceGroup: selectGroup === 'product' ? card.priceGroup : undefined,
+          path: `${template}/${card.group}/${card.name}.png`,
+        } : card)
+    );
+
+  return result;
 });
