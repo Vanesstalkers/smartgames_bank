@@ -120,7 +120,9 @@
                   // before navigating to different slides (Optional)
                   // You can find caption animation demo on the captions demo page
                   slideDelay: 400,
-                  dynamicEl: images.map(name => ({ src: `${serverOrigin}/img/cards/${name}` })),
+                  dynamicEl: images.map((name) => ({
+                    src: `${serverOrigin}/img/cards/${typeof name === 'string' ? name : name.path}`,
+                  })),
                 });
 
                 // Since we are using dynamic mode, we need to programmatically open lightGallery

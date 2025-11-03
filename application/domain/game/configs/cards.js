@@ -268,16 +268,23 @@
   ];
 
   const configGames = domain.game.configs.games();
-  const [{ itemsDefault: { centralBankRate } }] = Object.values(configGames);
+  const [
+    {
+      itemsDefault: { centralBankRate },
+    },
+  ] = Object.values(configGames);
   const result = list
     .filter((card) => !selectGroup || card.group === selectGroup)
     .filter((card) => card.group !== 'scoring' || (!card.name.includes('-') && !card.name.includes('+')))
     .map((card) =>
       (apiRequest ?
         {
-          price: selectGroup === 'product' ?
-            parseInt(card.depositIncome ? centralBankRate - card.price : card.price) : undefined,
+          price:
+            selectGroup === 'product' ?
+              parseInt(card.depositIncome ? centralBankRate - card.price : card.price) :
+              undefined,
           stars: selectGroup === 'product' ? card.stars : undefined,
+          group: card.name.split('_')[1],
           priceGroup: selectGroup === 'product' ? card.priceGroup : undefined,
           path: `${template}/${card.group}/${card.name}.png`,
         } : card)
